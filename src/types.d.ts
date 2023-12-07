@@ -9,6 +9,6 @@ declare module 'express-serve-static-core' {
     targetAdmin?: {
       type: string
       companyId: number
-  }
+    }
   }
 }
