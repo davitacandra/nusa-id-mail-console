@@ -1,7 +1,7 @@
 import mysql from 'mysql2'
 import config from 'dotenv'
 
-config()
+config.config()
 
 const dbConfig = {
   host: process.env.DB_HOST!,
