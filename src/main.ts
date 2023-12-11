@@ -42,51 +42,51 @@ app.post('/login', handleLogin)
 app.post('/logout', handleLogout)
 
 app.get('/profile', verifyToken, getProfile)
-app.put('/change-password', verifyToken, changePassword)
+app.put('/password', verifyToken, changePassword)
 
 app.post(
-  '/add-company',
+  '/company',
   verifyToken,
   checkAdminType(['superadmin']),
   addCompany,
 )
 app.delete(
-  '/delete-company/:companyId',
+  '/company/:companyId',
   verifyToken,
   checkAdminType(['superadmin']),
   deleteCompany,
 )
 app.get(
-  '/show-company',
+  '/company',
   verifyToken,
   checkAdminType(['superadmin']),
   showCompany,
 )
 
 app.post(
-  '/add-email',
+  '/email',
   verifyToken,
   attachUserInfo,
   checkAdminType(['superadmin', 'admin', 'operator']),
   addEmail,
 )
 app.delete(
-  '/delete-email/:emailId',
+  '/email/:emailId',
   verifyToken,
   attachUserInfo,
   checkAdminType(['superadmin', 'admin', 'operator']),
   deleteEmail,
 )
-app.get('/show-email', verifyToken, attachUserInfo, showEmail)
+app.get('/email', verifyToken, attachUserInfo, showEmail)
 app.put(
-  '/reset-password/:emailId',
+  '/password/:emailId',
   verifyToken,
   attachUserInfo,
   checkAdminType(['superadmin', 'admin', 'operator']),
   resetPassword,
 )
 app.put(
-  '/change-email-status/:emailId',
+  '/email-status/:emailId',
   verifyToken,
   attachUserInfo,
   checkAdminType(['superadmin', 'admin', 'operator']),
@@ -94,14 +94,14 @@ app.put(
 )
 
 app.post(
-  '/add-admin',
+  '/admin',
   verifyToken,
   attachUserInfo,
   checkAdminType(['superadmin', 'admin']),
   addAdmin,
 )
 app.delete(
-  '/delete-admin/:adminId',
+  '/admin/:adminId',
   verifyToken,
   attachUserInfo,
   checkAdminType(['superadmin', 'admin']),
@@ -109,14 +109,14 @@ app.delete(
   deleteAdmin,
 )
 app.get(
-  '/show-admin',
+  '/admin',
   verifyToken,
   attachUserInfo,
   checkAdminType(['superadmin', 'admin']),
   showAdmin,
 )
 app.put(
-  '/manage-admin/:adminId',
+  '/admin/:adminId',
   verifyToken,
   attachUserInfo,
   checkAdminType(['superadmin', 'admin']),
@@ -125,32 +125,32 @@ app.put(
 )
 
 app.post(
-  '/add-domain',
+  '/domain',
   verifyToken,
   attachUserInfo,
   checkAdminType(['superadmin', 'admin', 'operator']),
   addDomain,
 )
 app.put(
-  '/verify-domain/:domainId',
+  '/domain/:domainId',
   verifyToken,
   attachUserInfo,
   checkAdminType(['superadmin', 'admin', 'operator']),
   verifyDomain,
 )
 app.delete(
-  '/delete-domain/:domainId',
+  '/domain/:domainId',
   verifyToken,
   attachUserInfo,
   checkAdminType(['superadmin', 'admin', 'operator']),
   deleteDomain,
 )
-app.get('/show-domain', verifyToken, attachUserInfo, showDomain)
+app.get('/domain', verifyToken, attachUserInfo, showDomain)
 
-app.get('/show-group', verifyToken, attachUserInfo, showGroupList)
+app.get('/group', verifyToken, attachUserInfo, showGroupList)
 
 app.get(
-  '/show-email-log',
+  '/email-log',
   verifyToken,
   attachUserInfo,
   checkAdminType(['superadmin', 'admin']),
