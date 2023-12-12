@@ -35,6 +35,14 @@ const corsOptions = {
   origin: CORS_ORIGIN,
 }
 
+app.use(function(req: Request, res: Response, next: NextFunction) {
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', req.method)
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  res.removeHeader('x-powered-by')
+  next()
+})
+
 app.use(cors(corsOptions))
 app.use(bodyParser.json())
 
@@ -172,14 +180,6 @@ app.use(
 		res.status(500).send("Something broke!")
 	},
 )
-
-app.use(function(req: Request, res: Response, next: NextFunction) {
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
-  res.setHeader('Access-Control-Allow-Credentials', 'true')
-  next()
-})
 
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`)
