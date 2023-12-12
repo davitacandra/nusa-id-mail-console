@@ -39,14 +39,6 @@ app.use(cors(corsOptions))
 
 app.use(bodyParser.json())
 
-app.use(function(req: Request, res: Response, next: NextFunction) {
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Methods', req.method)
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
-  res.removeHeader('x-powered-by')
-  next()
-})
-
 app.post('/login', handleLogin)
 app.post('/logout', handleLogout)
 
