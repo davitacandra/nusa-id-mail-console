@@ -29,7 +29,7 @@ import { showEmailLog } from './mail-log'
 
 const app = express()
 const PORT = process.env.PORT || 3000
-const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://43.230.131.39'
+const CORS_ORIGIN = process.env.CORS_ORIGIN || '*'
 
 const corsOptions = {
   origin: CORS_ORIGIN,
@@ -37,13 +37,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions))
 
-app.use(function(req: Request, res: Response, next: NextFunction) {
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Methods', req.method)
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
-  res.removeHeader('x-powered-by')
-  next()
-})
+app.use(bodyParser.json())
 
 app.use(bodyParser.json())
 
@@ -77,7 +71,7 @@ app.post(
   verifyToken,
   attachUserInfo,
   checkAdminType(['superadmin', 'admin', 'operator']),
-  addEmail
+  addEmail,
 )
 app.delete(
   '/email/:emailId',
