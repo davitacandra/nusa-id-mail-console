@@ -18,9 +18,11 @@ export const addDomain = async (
   }
 
   // For admin users, restrict companyId to their own
-  if (loggedInAdminType === 'admin' || 'operator') {
+  if (loggedInAdminType === 'admin' || loggedInAdminType === 'operator') {
     companyId = loggedInCompanyId
-  } else if (loggedInAdminType === 'superadmin' && !companyId) {
+  }
+
+  if (loggedInAdminType === 'superadmin' && !companyId) {
     return res
       .status(400)
       .json({ message: 'Company ID is required for superadmin' })
