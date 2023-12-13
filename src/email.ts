@@ -141,7 +141,7 @@ export const showEmail = async (
 
   try {
     // Update the query to join with mailgw_domain and filter by the logged-in user's company_id
-    const query = `SELECT mm.mail, mm.mail_insert_date, ma.admin_fullname, mm.mail_mailbox_quota, mm.status FROM mailgw_mail mm JOIN mailgw_admin ma ON mm.mail_insert_by = ma.admin_id JOIN mailgw_domain md ON mm.domain_id = md.domain_id WHERE md.company_id = ?`
+    const query = `SELECT mm.id, mm.mail, mm.mail_insert_date, ma.admin_fullname, mm.mail_mailbox_quota, mm.status FROM mailgw_mail mm JOIN mailgw_admin ma ON mm.mail_insert_by = ma.admin_id JOIN mailgw_domain md ON mm.domain_id = md.domain_id WHERE md.company_id = ?`
 
     // Execute the query with the company_id to filter the emails
     const [emails] = await connection
@@ -270,7 +270,7 @@ export const changeEmailStatus = async (
     if (updateResult.affectedRows > 0) {
       return res
         .status(200)
-        .json({ message: 'Email status changed to ${newStatus} successfully' })
+        .json({ message: `Email status changed to ${newStatus} successfully` })
     } else {
       return res.status(404).json({
         message:

@@ -135,7 +135,7 @@ export const showAdmin = async (
   let queryParams = []
 
   if (loggedInAdminType === 'superadmin') {
-    query = `SELECT ma.admin_fullname, ma.admin_username, ma.admin_type, mc.company_name FROM mailgw_admin ma JOIN mailgw_company mc ON ma.company_id = mc.company_id`
+    query = `SELECT ma.admin_id, ma.admin_fullname, ma.admin_username, ma.admin_type, mc.company_name FROM mailgw_admin ma JOIN mailgw_company mc ON ma.company_id = mc.company_id`
   } else {
     query = `SELECT ma.admin_fullname, ma.admin_username, ma.admin_type, mc.company_name FROM mailgw_admin ma JOIN mailgw_company mc ON ma.company_id = mc.company_id WHERE ma.company_id = ?`
     queryParams.push(loggedInCompanyId)

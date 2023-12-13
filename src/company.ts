@@ -87,7 +87,7 @@ export const showCompany = async (
   res: Response,
 ): Promise<Response> => {
   try {
-    const query = `SELECT company_name, company_max_domain, company_max_account, company_mailbox_quota, company_registered_date FROM mailgw_company`
+    const query = `SELECT company_id, company_name, company_max_domain, company_max_account, company_mailbox_quota, company_registered_date FROM mailgw_company`
     const [company] = await connection.promise().query<RowDataPacket[]>(query)
 
     return res.json(company)

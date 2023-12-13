@@ -199,7 +199,7 @@ export const showDomain = async (
   const loggedInCompanyId = req.companyId
 
   try {
-    let query = `SELECT md.domain_name, mc.company_name, md.domain_insert_date, md.domain_verification_code, CASE md.domain_verified WHEN 0 THEN 'not verified' WHEN 1 THEN 'verified' END as domain_verified_status FROM mailgw_domain md JOIN mailgw_company mc ON md.company_id = mc.company_id`
+    let query = `SELECT md.domain_id, md.domain_name, mc.company_name, md.domain_insert_date, md.domain_verification_code, CASE md.domain_verified WHEN 0 THEN 'not verified' WHEN 1 THEN 'verified' END as domain_verified_status FROM mailgw_domain md JOIN mailgw_company mc ON md.company_id = mc.company_id`
 
     const queryParams: any[] = []
 
