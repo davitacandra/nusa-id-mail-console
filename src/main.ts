@@ -36,7 +36,6 @@ const corsOptions = {
 }
 
 app.use(cors(corsOptions))
-app.use(bodyParser.json())
 
 app.use(function(req: Request, res: Response, next: NextFunction) {
   res.setHeader('Access-Control-Allow-Origin', '*')
@@ -45,6 +44,8 @@ app.use(function(req: Request, res: Response, next: NextFunction) {
   res.removeHeader('x-powered-by')
   next()
 })
+
+app.use(bodyParser.json())
 
 app.post('/login', handleLogin)
 app.post('/logout', handleLogout)
@@ -56,13 +57,13 @@ app.post(
   '/company',
   verifyToken,
   checkAdminType(['superadmin']),
-  addCompany,
+  addCompany
 )
 app.delete(
   '/company/:companyId',
   verifyToken,
   checkAdminType(['superadmin']),
-  deleteCompany,
+  deleteCompany
 )
 app.get(
   '/company',
@@ -76,7 +77,7 @@ app.post(
   verifyToken,
   attachUserInfo,
   checkAdminType(['superadmin', 'admin', 'operator']),
-  addEmail,
+  addEmail
 )
 app.delete(
   '/email/:emailId',

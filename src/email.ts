@@ -19,7 +19,7 @@ export const addEmail = async (
   res: Response,
 ): Promise<Response> => {
   const { localPart, domainId, password } = req.body
-  const companyId = req.companyId
+  const loggedInCompanyId = req.user?.companyId
   const mail_insert_by = req.user?.id
 
   // Validate the incoming data
@@ -32,24 +32,23 @@ export const addEmail = async (
   try {
     // Check if the domain belongs to the user's company
     const domainCompanyCheckQuery = `SELECT company_id FROM mailgw_domain WHERE domain_id = ?`
-    const [domainCompanyCheckResult] = await connection
-      .promise()
-      .execute<RowDataPacket[]>(domainCompanyCheckQuery, [domainId])
+    const [domainCompanyCheckResult] = await connection.promise().execute<RowDataPacket[]>(domainCompanyCheckQuery, [domainId])
 
-    if (
-      domainCompanyCheckResult.length === 0 ||
-      domainCompanyCheckResult[0].company_id !== companyId
-    ) {
-      return res
-        .status(403)
-        .json({ message: 'Domain not found or not owned by your company' })
+    if (domainCompanyCheckResult.length === 0) {
+      console.log(`Domain with ID ${domainId} not found`)
+      return res.status(404).json({ message: 'Domain not found' })
+    }
+
+    if (domainCompanyCheckResult[0].company_id !== loggedInCompanyId) {
+      console.log(`Domain with ID ${domainId} is not owned by company with ID ${loggedInCompanyId}`)
+      return res.status(403).json({ message: 'Domain not owned by your company' })
     }
 
     // Check if the company has reached its max account limit
     const companyAccountLimitQuery = `SELECT company_max_account FROM mailgw_company WHERE company_id = ?`
     const [companyAccountLimitResult] = await connection
       .promise()
-      .execute<RowDataPacket[]>(companyAccountLimitQuery, [companyId])
+      .execute<RowDataPacket[]>(companyAccountLimitQuery, [loggedInCompanyId])
     const companyMaxAccount = companyAccountLimitResult[0].company_max_account
 
     const currentAccountCountQuery = `SELECT COUNT(*) AS accountCount FROM mailgw_mail WHERE domain_id = ?`
@@ -64,18 +63,41 @@ export const addEmail = async (
       })
     }
 
+    // Fetch the domain name
+    const domainNameQuery = `SELECT domain_name FROM mailgw_domain WHERE domain_id = ?`
+    const [domainNameResult] = await connection.promise().execute<RowDataPacket[]>(domainNameQuery, [domainId])
+
+    if (domainNameResult.length === 0) {
+      return res.status(404).json({ message: 'Domain not found' })
+    }
+    const domainName = domainNameResult[0].domain_name
+
     // Insert the new email account
-    const email = `${localPart}@${domainId}` // Construct the email address
+    // Construct the email address with the domain name
+    const email = `${localPart}@${domainName}`
     const hashedPassword = await bcrypt.hash(password, 10) // Hash the password
-    const insertEmailQuery = `INSERT INTO mailgw_mail (mail, mail_mailbox_quota, status, mail_insert_by, domain_id, mail_insert_date, mail_last_update) VALUES (?, 10737418240, 'active', ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`
+
+    // Check if the email already exists
+    const emailExistsQuery = `SELECT id FROM mailgw_mail WHERE mail = ?`
+    const [emailExistsResult] = await connection.promise().execute<RowDataPacket[]>(emailExistsQuery, [email])
+
+    if (emailExistsResult.length > 0) {
+      return res.status(409).json({ message: 'Email address already exists' })
+    }
+
+    // Make sure mail_insert_by and domainId are not undefined
+    const safeMailInsertBy = mail_insert_by !== undefined ? mail_insert_by : null
+    const safeDomainId = domainId !== undefined ? domainId : null
+
+    const insertEmailQuery = `INSERT INTO mailgw_mail (mail, password, mail_mailbox_quota, status, mail_insert_by, domain_id, mail_insert_date, mail_last_update) VALUES (?, ?, 10737418240, 'active', ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`
 
     const [insertResult] = await connection
       .promise()
       .execute<OkPacket>(insertEmailQuery, [
         email,
         hashedPassword,
-        mail_insert_by,
-        domainId,
+        safeMailInsertBy,
+        safeDomainId,
       ])
 
     if (insertResult.affectedRows > 0) {
@@ -141,7 +163,7 @@ export const showEmail = async (
 
   try {
     // Update the query to join with mailgw_domain and filter by the logged-in user's company_id
-    const query = `SELECT mm.mail, mm.mail_insert_date, ma.admin_fullname, mm.mail_mailbox_quota, mm.status FROM mailgw_mail mm JOIN mailgw_admin ma ON mm.mail_insert_by = ma.admin_id JOIN mailgw_domain md ON mm.domain_id = md.domain_id WHERE md.company_id = ?`
+    const query = `SELECT mm.id, mm.mail, mm.mail_insert_date, ma.admin_fullname, mm.mail_mailbox_quota, mm.status FROM mailgw_mail mm JOIN mailgw_admin ma ON mm.mail_insert_by = ma.admin_id JOIN mailgw_domain md ON mm.domain_id = md.domain_id WHERE md.company_id = ?`
 
     // Execute the query with the company_id to filter the emails
     const [emails] = await connection
@@ -270,7 +292,7 @@ export const changeEmailStatus = async (
     if (updateResult.affectedRows > 0) {
       return res
         .status(200)
-        .json({ message: 'Email status changed to ${newStatus} successfully' })
+        .json({ message: `Email status changed to ${newStatus} successfully` })
     } else {
       return res.status(404).json({
         message:
