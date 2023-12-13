@@ -17,6 +17,12 @@ export const addDomain = async (
     return res.status(400).json({ message: 'Domain name is required' })
   }
 
+  // Regular expression for validating domain name
+  const domainRegex = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (!domainRegex.test(domainName)) {
+    return res.status(400).json({ message: 'Invalid domain name format. Ex. example.com' })
+  }
+
   // For admin users, restrict companyId to their own
   if (loggedInAdminType === 'admin' || loggedInAdminType === 'operator') {
     companyId = loggedInCompanyId
