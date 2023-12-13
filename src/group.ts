@@ -6,7 +6,7 @@ export const showGroupList = async (
   req: Request,
   res: Response,
 ): Promise<Response> => {
-  const companyId = req.companyId
+  const companyId = req.user?.companyId
 
   if (!companyId) {
     return res

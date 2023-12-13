@@ -9,8 +9,8 @@ export const addDomain = async (
   res: Response,
 ): Promise<Response> => {
   let { domainName, companyId } = req.body
-  const loggedInAdminType = req.adminType
-  const loggedInCompanyId = req.companyId
+  const loggedInAdminType = req.user?.adminType
+  const loggedInCompanyId = req.user?.companyId
 
   // Check if domain name is provided
   if (!domainName) {
@@ -76,8 +76,8 @@ export const verifyDomain = async (
   res: Response,
 ): Promise<Response> => {
   const { domainId } = req.params
-  const loggedInAdminType = req.adminType
-  const loggedInCompanyId = req.companyId
+  const loggedInAdminType = req.user?.adminType
+  const loggedInCompanyId = req.user?.companyId
 
   if (!domainId) {
     return res.status(400).json({ message: 'Domain ID is required' })
@@ -135,8 +135,8 @@ export const deleteDomain = async (
   res: Response,
 ): Promise<Response> => {
   const { domainId } = req.params
-  const loggedInAdminType = req.adminType
-  const loggedInCompanyId = req.companyId
+  const loggedInAdminType = req.user?.adminType
+  const loggedInCompanyId = req.user?.companyId
 
   if (!domainId) {
     return res.status(400).json({ message: 'Domain ID is required' })
@@ -195,8 +195,8 @@ export const showDomain = async (
   req: Request,
   res: Response,
 ): Promise<Response> => {
-  const loggedInAdminType = req.adminType
-  const loggedInCompanyId = req.companyId
+  const loggedInAdminType = req.user?.adminType
+  const loggedInCompanyId = req.user?.companyId
 
   try {
     let query = `SELECT md.domain_id, md.domain_name, mc.company_name, md.domain_insert_date, md.domain_verification_code, CASE md.domain_verified WHEN 0 THEN 'not verified' WHEN 1 THEN 'verified' END as domain_verified_status FROM mailgw_domain md JOIN mailgw_company mc ON md.company_id = mc.company_id`
