@@ -183,7 +183,7 @@ export const resetPassword = async (
 ): Promise<Response> => {
   const { emailId } = req.params
   const { newPassword } = req.body
-  const companyId = req.companyId // Provided by attachUserInfo middleware
+  const companyId = req.user?.companyId // Provided by attachUserInfo middleware
 
   // Check for password length
   if (!newPassword || newPassword.length < 8) {
@@ -195,6 +195,9 @@ export const resetPassword = async (
   if (!emailId) {
     return res.status(400).json({ message: 'Email ID is required' })
   }
+
+  // Debugging log
+  console.log(`Attempting to reset password for emailId: ${emailId}, companyId: ${companyId}`)
 
   try {
     // First, verify that the email ID belongs to a domain owned by the user's company
@@ -213,7 +216,10 @@ export const resetPassword = async (
     }
 
     // Hash the new password
-    const hashedPassword = await bcrypt.hash(newPassword, 10)
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    if (!hashedPassword) {
+      return res.status(500).json({ message: 'Error generating hashed password' })
+    }
 
     // Prepare the SQL query to update the password
     const updateQuery = `UPDATE mailgw_mail SET password = ? WHERE id = ?`
