@@ -85,10 +85,6 @@ export const addEmail = async (
       return res.status(409).json({ message: 'Email address already exists' })
     }
 
-    // Make sure mail_insert_by and domainId are not undefined
-    const safeMailInsertBy = mail_insert_by !== undefined ? mail_insert_by : null
-    const safeDomainId = domainId !== undefined ? domainId : null
-
     const insertEmailQuery = `INSERT INTO mailgw_mail (mail, password, mail_mailbox_quota, status, mail_insert_by, domain_id, mail_insert_date, mail_last_update) VALUES (?, ?, 10737418240, 'active', ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`
 
     const [insertResult] = await connection
@@ -96,8 +92,8 @@ export const addEmail = async (
       .execute<OkPacket>(insertEmailQuery, [
         email,
         hashedPassword,
-        safeMailInsertBy,
-        safeDomainId,
+        mail_insert_by,
+        domainId,
       ])
 
     if (insertResult.affectedRows > 0) {
@@ -118,7 +114,7 @@ export const deleteEmail = async (
   res: Response,
 ): Promise<Response> => {
   const { emailId } = req.params
-  const companyId = req.companyId // Provided by the attachUserInfo middleware
+  const companyId = req.user?.companyId // Provided by the attachUserInfo middleware
 
   if (!emailId) {
     return res.status(400).json({ message: 'Email ID is required' })
@@ -159,7 +155,7 @@ export const showEmail = async (
   req: Request,
   res: Response,
 ): Promise<Response> => {
-  const companyId = req.companyId // Provided by attachUserInfo middleware
+  const companyId = req.user?.companyId // Provided by attachUserInfo middleware
 
   try {
     // Update the query to join with mailgw_domain and filter by the logged-in user's company_id
@@ -249,7 +245,7 @@ export const changeEmailStatus = async (
   res: Response,
 ): Promise<Response> => {
   const { emailId } = req.params
-  const companyId = req.companyId // Provided by attachUserInfo middleware
+  const companyId = req.user?.companyId // Provided by attachUserInfo middleware
 
   // Check if emailId and companyId are provided
   if (!emailId) {
