@@ -158,9 +158,9 @@ export const manageAdmin = async (
 ): Promise<Response> => {
   const { newType, newPassword } = req.body
   const { adminId } = req.params
-  const adminType = req.adminType
-  const companyId = req.companyId
-  const targetAdmin = req.targetAdmin
+  const adminType = req.user?.adminType
+  const companyId = req.user?.companyId
+  const targetAdmin = req.user?.targetAdmin
 
   // Define the types that an 'admin' can set
   const allowedTypesForAdmin = ['admin', 'guest', 'operator']

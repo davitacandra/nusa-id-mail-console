@@ -80,7 +80,12 @@ app.delete(
   checkAdminType(['superadmin', 'admin', 'operator']),
   deleteEmail,
 )
-app.get('/email', verifyToken, attachUserInfo, showEmail)
+app.get(
+  '/email', 
+  verifyToken, 
+  attachUserInfo, 
+  showEmail
+)
 app.put(
   '/password/:emailId',
   verifyToken,

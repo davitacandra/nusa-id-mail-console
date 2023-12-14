@@ -56,7 +56,7 @@ export const getProfile = async (req: Request, res: Response) => {
 export const changePassword = async (req: Request, res: Response) => {
   const loggedInUsername = req.user?.username as string
 
-  const { currentPassword, newPassword, confirmPassword } = req.body
+  const { currentPassword, newPassword, confirmNewPassword } = req.body
 
   if (!currentPassword || !newPassword) {
     return res
@@ -64,7 +64,7 @@ export const changePassword = async (req: Request, res: Response) => {
       .json({ message: 'Current password and new password are required' })
   }
 
-  if (newPassword !== confirmPassword) {
+  if (newPassword !== confirmNewPassword) {
     return res.status(400).json({ message: 'New password does not match' })
   }
 
