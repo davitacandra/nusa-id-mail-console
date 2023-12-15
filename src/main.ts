@@ -26,6 +26,7 @@ import { addAdmin, deleteAdmin, manageAdmin, showAdmin } from './admin'
 import { addDomain, verifyDomain, deleteDomain, showDomain } from './domain'
 import { showGroupList } from './group'
 import { showEmailLog } from './mail-log'
+import { Dashboard } from './dashboard'
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -43,6 +44,8 @@ app.use(bodyParser.json())
 
 app.post('/login', handleLogin)
 app.post('/logout', handleLogout)
+
+app.get('/dashboard', verifyToken, attachUserInfo, Dashboard)
 
 app.get('/profile', verifyToken, getProfile)
 app.put('/password', verifyToken, changePassword)
