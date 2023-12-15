@@ -15,7 +15,12 @@ export const showGroupList = async (
   }
 
   try {
-    const groupListQuery = `SELECT mg.group_name, mg.group_email_address,mg.group_description, mg.insert_date, ma.admin_fullname as create_by_admin FROM mailgw_group mg JOIN mailgw_domain md ON mg.domain_id = md.domain_id JOIN mailgw_admin ma ON mg.create_by_admin = ma.admin_id WHERE md.company_id = ?`
+    const groupListQuery = `SELECT mg.group_name, mg.group_email_address, 
+    mg.group_description, mg.insert_date, ma.admin_fullname 
+    AS create_by_admin FROM mailgw_group mg 
+    JOIN mailgw_domain md ON mg.domain_id = md.domain_id 
+    JOIN mailgw_admin ma ON mg.create_by_admin = ma.admin_id 
+    WHERE md.company_id = ?`
 
     const [groups] = await connection
       .promise()

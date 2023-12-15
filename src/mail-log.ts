@@ -15,7 +15,11 @@ export const showEmailLog = async (
   }
 
   try {
-    const emailLogQuery = `SELECT ms.id, ms.sent_date, mm.mail AS 'From', ms.mail_destination AS 'To', ms.mail_subject AS 'Subject' FROM mailgw_mail_sent ms JOIN mailgw_mail mm ON ms.mail_source_id = mm.id JOIN mailgw_domain md ON mm.domain_id = md.domain_id WHERE md.company_id = ?`
+    const emailLogQuery = `SELECT ms.id, ms.sent_date, mm.mail 
+    AS 'From', ms.mail_destination AS 'To', ms.mail_subject 
+    AS 'Subject' FROM mailgw_mail_sent ms JOIN mailgw_mail mm 
+    ON ms.mail_source_id = mm.id JOIN mailgw_domain md 
+    ON mm.domain_id = md.domain_id WHERE md.company_id = ?`
 
     const [emailLogs] = await connection
       .promise()

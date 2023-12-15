@@ -14,8 +14,10 @@ export const getProfile = async (req: Request, res: Response) => {
   const loggedInUsername = req.user?.username as string
 
   try {
-    const adminQuery = `SELECT admin_username, company_id FROM mailgw_admin WHERE admin_username = ?`
-    const companyQuery = `SELECT company_name, company_address FROM mailgw_company WHERE company_id = ?`
+    const adminQuery = `SELECT admin_username, company_id 
+    FROM mailgw_admin WHERE admin_username = ?`
+    const companyQuery = `SELECT company_name, company_address 
+    FROM mailgw_company WHERE company_id = ?`
 
     // Use loggedInUsername instead of req.params.admin_username
     const [adminRows] = await connection

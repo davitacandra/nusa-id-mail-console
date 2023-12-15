@@ -111,7 +111,8 @@ export const attachUserInfo = async (
 
   try {
     // Fetch logged-in admin's info
-    const userQuery = `SELECT admin_id, admin_type, company_id FROM mailgw_admin WHERE admin_username = ?`
+    const userQuery = `SELECT admin_id, admin_type, company_id 
+    FROM mailgw_admin WHERE admin_username = ?`
     const [userRows] = await connection
       .promise()
       .query<RowDataPacket[]>(userQuery, [loggedInUsername])
@@ -122,8 +123,8 @@ export const attachUserInfo = async (
 
     const user = userRows[0]
     if (!user.company_id) {
-      console.error(`Company ID is null for admin: ${loggedInUsername}`);
-      return res.status(403).json({ message: 'Company information not found for the logged-in admin' });
+      console.error(`Company ID is null for admin: ${loggedInUsername}`)
+      return res.status(403).json({ message: 'Company information not found for the logged-in admin' })
     }
 
     req.user = {

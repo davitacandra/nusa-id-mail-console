@@ -5,7 +5,7 @@ import { RowDataPacket, OkPacket } from 'mysql2'
 interface RecentEmail {
   id: number
   mail: string
-  insert_date: Date | string // Use Date or string based on how you handle dates in your app
+  insert_date: Date | string
   insert_by: string
   mailbox_quota: string
 }
@@ -79,7 +79,7 @@ async function fetchRecentAddedEmailsByCompany(companyId: number): Promise<Recen
     mail: row.mail,
     insert_date: formatDate(row.mail_insert_date),
     insert_by: row.admin_fullname,
-    mailbox_quota: convertBytesToGB(row.mail_mailbox_quota), // Assuming this function is already defined
+    mailbox_quota: convertBytesToGB(row.mail_mailbox_quota),
   }))
 
   return recentEmails
@@ -221,4 +221,3 @@ export const Dashboard = async (
     return res.status(500).json({ message: 'Failed to fetch dashboard data' })
   }
 }
-

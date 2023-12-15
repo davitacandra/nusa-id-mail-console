@@ -85,7 +85,11 @@ export const addEmail = async (
       return res.status(409).json({ message: 'Email address already exists' })
     }
 
-    const insertEmailQuery = `INSERT INTO mailgw_mail (mail, password, mail_mailbox_quota, status, mail_insert_by, domain_id, mail_insert_date, mail_last_update) VALUES (?, ?, 10737418240, 'active', ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`
+    const insertEmailQuery = `INSERT INTO mailgw_mail (mail, password, 
+      mail_mailbox_quota, status, mail_insert_by, domain_id, 
+      mail_insert_date, mail_last_update) 
+      VALUES (?, ?, 10737418240, 'active', ?, ?, 
+      CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`
 
     const [insertResult] = await connection
       .promise()
@@ -122,7 +126,9 @@ export const deleteEmail = async (
 
   try {
     // Check if the email belongs to a domain owned by the user's company
-    const emailDomainCheckQuery = `SELECT mm.id FROM mailgw_mail mm JOIN mailgw_domain md ON mm.domain_id = md.domain_id WHERE mm.id = ? AND md.company_id = ?`
+    const emailDomainCheckQuery = `SELECT mm.id FROM mailgw_mail mm 
+    JOIN mailgw_domain md ON mm.domain_id = md.domain_id 
+    WHERE mm.id = ? AND md.company_id = ?`
 
     const [emailDomainCheckResult] = await connection
       .promise()
@@ -159,7 +165,12 @@ export const showEmail = async (
 
   try {
     // Update the query to join with mailgw_domain and filter by the logged-in user's company_id
-    const query = `SELECT mm.id, mm.mail, mm.mail_insert_date, ma.admin_fullname, mm.mail_mailbox_quota, mm.status FROM mailgw_mail mm JOIN mailgw_admin ma ON mm.mail_insert_by = ma.admin_id JOIN mailgw_domain md ON mm.domain_id = md.domain_id WHERE md.company_id = ?`
+    const query = `SELECT mm.id, mm.mail, mm.mail_insert_date, 
+    ma.admin_fullname, mm.mail_mailbox_quota, mm.status 
+    FROM mailgw_mail mm JOIN mailgw_admin ma 
+    ON mm.mail_insert_by = ma.admin_id 
+    JOIN mailgw_domain md ON mm.domain_id = md.domain_id 
+    WHERE md.company_id = ?`
 
     // Execute the query with the company_id to filter the emails
     const [emails] = await connection
@@ -197,7 +208,9 @@ export const resetPassword = async (
 
   try {
     // First, verify that the email ID belongs to a domain owned by the user's company
-    const domainCheckQuery = `SELECT me.id FROM mailgw_mail me JOIN mailgw_domain md ON me.domain_id = md.domain_id WHERE me.id = ? AND md.company_id = ?`
+    const domainCheckQuery = `SELECT me.id FROM mailgw_mail me 
+    JOIN mailgw_domain md ON me.domain_id = md.domain_id 
+    WHERE me.id = ? AND md.company_id = ?`
 
     const [domainCheckResult] = await connection
       .promise()
@@ -260,7 +273,9 @@ export const changeEmailStatus = async (
 
   try {
     // First, verify that the email ID belongs to a domain owned by the user's company
-    const domainCheckQuery = `SELECT mm.id FROM mailgw_mail mm JOIN mailgw_domain md ON mm.domain_id = md.domain_id WHERE mm.id = ? AND md.company_id = ?`
+    const domainCheckQuery = `SELECT mm.id FROM mailgw_mail mm 
+    JOIN mailgw_domain md ON mm.domain_id = md.domain_id 
+    WHERE mm.id = ? AND md.company_id = ?`
 
     const [domainCheckResult] = await connection
       .promise()
