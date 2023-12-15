@@ -14,8 +14,8 @@ export const addAdmin = async (
 ): Promise<Response> => {
   const { fullname, username, password, type } = req.body
   let { companyId } = req.body
-  const loggedInAdminType = req.adminType
-  const loggedInCompanyId = req.companyId
+  const loggedInAdminType = req.user?.adminType
+  const loggedInCompanyId = req.user?.companyId
 
   const allowedTypesForAdmin = ['admin', 'guest', 'operator']
 
@@ -49,7 +49,9 @@ export const addAdmin = async (
   try {
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    const insertQuery = `INSERT INTO mailgw_admin (admin_username, admin_password, admin_fullname, admin_type, company_id) VALUES (?, ?, ?, ?, ?)`
+    const insertQuery = `INSERT INTO mailgw_admin 
+    (admin_username, admin_password, admin_fullname, admin_type, company_id) 
+    VALUES (?, ?, ?, ?, ?)`
 
     const [insertResult] = await connection
       .promise()
@@ -79,9 +81,9 @@ export const deleteAdmin = async (
   res: Response,
 ): Promise<Response> => {
   const { adminId } = req.params
-  const loggedInAdminType = req.adminType
-  const loggedInCompanyId = req.companyId
-  const targetAdmin = req.targetAdmin
+  const loggedInAdminType = req.user?.adminType
+  const loggedInCompanyId = req.user?.companyId
+  const targetAdmin = req.user?.targetAdmin
 
   if (!adminId) {
     return res.status(400).json({ message: 'Admin ID is required' })
@@ -128,16 +130,22 @@ export const showAdmin = async (
   req: Request,
   res: Response,
 ): Promise<Response> => {
-  const loggedInAdminType = req.adminType
-  const loggedInCompanyId = req.companyId
+  const loggedInAdminType = req.user?.adminType
+  const loggedInCompanyId = req.user?.companyId
 
   let query = ''
   let queryParams = []
 
   if (loggedInAdminType === 'superadmin') {
-    query = `SELECT ma.admin_id, ma.admin_fullname, ma.admin_username, ma.admin_type, mc.company_name FROM mailgw_admin ma JOIN mailgw_company mc ON ma.company_id = mc.company_id`
+    query = `SELECT ma.admin_id, ma.admin_fullname, 
+    ma.admin_username, ma.admin_type, mc.company_name 
+    FROM mailgw_admin ma JOIN mailgw_company mc ON 
+    ma.company_id = mc.company_id`
   } else {
-    query = `SELECT ma.admin_fullname, ma.admin_username, ma.admin_type, mc.company_name FROM mailgw_admin ma JOIN mailgw_company mc ON ma.company_id = mc.company_id WHERE ma.company_id = ?`
+    query = `SELECT ma.admin_fullname, ma.admin_username, 
+    ma.admin_type, mc.company_name FROM mailgw_admin ma 
+    JOIN mailgw_company mc ON ma.company_id = mc.company_id 
+    WHERE ma.company_id = ?`
     queryParams.push(loggedInCompanyId)
   }
 
@@ -156,7 +164,7 @@ export const manageAdmin = async (
   req: Request,
   res: Response,
 ): Promise<Response> => {
-  const { newType, newPassword } = req.body
+  const { newName, newType, newPassword } = req.body
   const { adminId } = req.params
   const adminType = req.user?.adminType
   const companyId = req.user?.companyId
@@ -165,27 +173,24 @@ export const manageAdmin = async (
   // Define the types that an 'admin' can set
   const allowedTypesForAdmin = ['admin', 'guest', 'operator']
 
-  if (!adminId || !newType) {
+  if (!adminId) {
     return res
       .status(400)
-      .json({ message: 'Admin ID and new type are required' })
+      .json({ message: 'Admin ID are required' })
   }
 
-  // Check if the password is provided and at least 8 characters long
   if (newPassword && newPassword.length < 8) {
     return res
       .status(400)
       .json({ message: 'Password must be at least 8 characters long' })
   }
 
-  // Check if the logged-in admin is 'admin' and the target user is 'superadmin'
   if (adminType === 'admin' && targetAdmin?.type === 'superadmin') {
     return res.status(403).json({
       message: 'Unauthorized - Cannot change the type of a superadmin',
     })
   }
 
-  // Check if the logged-in admin is 'admin' and trying to set to an allowed type
   if (adminType === 'admin' && !allowedTypesForAdmin.includes(newType)) {
     return res.status(403).json({
       message: `Unauthorized - Admin can only set types to ${allowedTypesForAdmin.join(
@@ -194,7 +199,6 @@ export const manageAdmin = async (
     })
   }
 
-  // Additional check for 'admin' to ensure target user is within the same company
   if (adminType === 'admin' && targetAdmin?.companyId !== companyId) {
     return res.status(403).json({
       message: 'Unauthorized - Can only update admin within the same company',
@@ -205,29 +209,34 @@ export const manageAdmin = async (
     let updateQuery = `UPDATE mailgw_admin SET `
     const updateParams = []
 
-    // Check and prepare new type update
-    if (newType) {
-      updateQuery += `admin_type = ?`
-      updateParams.push(newType)
+    if (newName) {
+        updateQuery += `admin_fullname = ?`
+        updateParams.push(newName)
     }
 
-    // Check and prepare new password update
+    if (newType) {
+        if (updateParams.length > 0) {
+            updateQuery += `, `
+        }
+        updateQuery += `admin_type = ?`
+        updateParams.push(newType)
+    }
+
     if (newPassword) {
-      const hashedPassword = await bcrypt.hash(newPassword, 10) // Hash the new password
-      if (newType) {
-        updateQuery += `, `
-      }
-      updateQuery += `admin_password = ?`
-      updateParams.push(hashedPassword)
+        const hashedPassword = await bcrypt.hash(newPassword, 10)
+        if (updateParams.length > 0) {
+            updateQuery += `, `
+        }
+        updateQuery += `admin_password = ?`
+        updateParams.push(hashedPassword)
     }
 
     updateQuery += ` WHERE admin_id = ?`
     updateParams.push(adminId)
 
-    // Execute the update query
     const [updateResult] = await connection
       .promise()
-      .execute<OkPacket>(updateQuery, updateParams)
+      .execute(updateQuery, updateParams) as unknown as [OkPacket]
 
     if (updateResult.affectedRows > 0) {
       return res.status(200).json({ message: 'Admin updated successfully' })

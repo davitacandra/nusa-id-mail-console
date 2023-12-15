@@ -132,7 +132,8 @@ async function fetchRecentSentEmailsByCompany(companyId: number): Promise<Recent
   twoDaysAgo.setDate(twoDaysAgo.getDate() - 2)
 
   const query = `
-    SELECT mms.id, mms.sent_date, mm.mail AS 'from', mms.mail_destination AS 'to', mms.mail_subject
+    SELECT mms.id, mms.sent_date, mm.mail AS 'from', mms.mail_destination 
+    AS 'to', mms.mail_subject
     FROM mailgw_mail_sent AS mms
     JOIN mailgw_mail AS mm ON mms.mail_source_id = mm.id
     JOIN mailgw_domain AS md ON mm.domain_id = md.domain_id
@@ -154,7 +155,8 @@ async function fetchRecentInboxEmailsByCompany(companyId: number): Promise<Recen
   twoDaysAgo.setDate(twoDaysAgo.getDate() - 2)
 
   const query = `
-    SELECT mmi.id, mmi.inbox_date, mmi.mail_source AS 'from', mm.mail AS 'to', mmi.mail_subject
+    SELECT mmi.id, mmi.inbox_date, mmi.mail_source AS 'from', 
+    mm.mail AS 'to', mmi.mail_subject
     FROM mailgw_mail_inbox AS mmi
     JOIN mailgw_mail AS mm ON mmi.mail_dest_id = mm.id
     JOIN mailgw_domain AS md ON mm.domain_id = md.domain_id
