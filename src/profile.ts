@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt'
 import { RowDataPacket, OkPacket } from 'mysql2'
 
 type UserProfile = {
+  admin_fullname: string
   admin_username: string
   company_name: string
   company_address: string
@@ -14,7 +15,7 @@ export const getProfile = async (req: Request, res: Response) => {
   const loggedInUsername = req.user?.username as string
 
   try {
-    const adminQuery = `SELECT admin_username, company_id 
+    const adminQuery = `SELECT admin_fullname, admin_username, company_id 
     FROM mailgw_admin WHERE admin_username = ?`
     const companyQuery = `SELECT company_name, company_address 
     FROM mailgw_company WHERE company_id = ?`
@@ -43,6 +44,7 @@ export const getProfile = async (req: Request, res: Response) => {
 
     // Construct the user profile response
     const userProfile: UserProfile = {
+      admin_fullname: admin.admin_fullname,
       admin_username: admin.admin_username,
       company_name: company.company_name,
       company_address: company.company_address,
