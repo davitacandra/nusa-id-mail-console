@@ -35,9 +35,8 @@ export const handleLogin = async (
       return res.status(401).json({ message: 'Invalid credentials' })
     }
 
-    const token = jwt.sign({ username: username, admin_type: user.admin_type }, JWT_SECRET, {
-      expiresIn: '2h',
-    })
+    const token = jwt.sign({ username: username, admin_type: user.admin_type }, JWT_SECRET, 
+      { expiresIn: '2h', })
     return res.json({ token, message: 'Login successful' })
   } catch (error) {
     console.error('Database query error:', error)
