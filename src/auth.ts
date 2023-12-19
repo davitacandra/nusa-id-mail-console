@@ -19,7 +19,7 @@ export const handleLogin = async (
   }
 
   try {
-    const query = `SELECT admin_password FROM mailgw_admin WHERE admin_username = ?`
+    const query = `SELECT admin_password, admin_type FROM mailgw_admin WHERE admin_username = ?`
     const [results] = await connection
       .promise()
       .query<RowDataPacket[]>(query, [username])
@@ -35,7 +35,7 @@ export const handleLogin = async (
       return res.status(401).json({ message: 'Invalid credentials' })
     }
 
-    const token = jwt.sign({ username: username }, JWT_SECRET, {
+    const token = jwt.sign({ username: username, admin_type: user.admin_type }, JWT_SECRET, {
       expiresIn: '2h',
     })
     return res.json({ token, message: 'Login successful' })
